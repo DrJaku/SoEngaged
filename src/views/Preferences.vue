@@ -37,7 +37,7 @@
                 <label class="form-label fw-bold">Venue Name</label>
                 <textarea 
                   class="form-control mb-3" 
-                  rows="2" 
+                  rows="1" 
                   v-model="settings.venue"
                   placeholder="Enter the name of your wedding venue"
                 ></textarea>

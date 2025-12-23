@@ -32,6 +32,7 @@
 
 <script setup>
 import { ref, watch } from 'vue'
+import { toast } from 'vue3-toastify'
 import * as XLSX from 'xlsx'
 
 const STORAGE_KEY = 'demo-app-data'
@@ -48,19 +49,20 @@ watch(items, (v) => {
 
 function saveToLocal() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(items.value))
-  alert('Saved to localStorage')
+  toast.success('Saved to localStorage')
 }
 
 function loadFromLocal() {
   const raw = localStorage.getItem(STORAGE_KEY)
   if (!raw) {
-    alert('No saved data in localStorage')
+    toast.warning('No saved data in localStorage')
     return
   }
   try {
     items.value = JSON.parse(raw)
+    toast.success('Loaded from local storage')
   } catch (e) {
-    alert('Failed to parse saved data')
+    toast.error('Failed to parse saved data')
   }
 }
 
@@ -82,8 +84,9 @@ function handleJSONImport(e) {
     try {
       const parsed = JSON.parse(ev.target.result)
       items.value = parsed
+      toast.success('JSON file imported')
     } catch (err) {
-      alert('Invalid JSON file')
+      toast.error('Invalid JSON file')
     }
   }
   reader.readAsText(f)
@@ -96,8 +99,9 @@ function exportXLSX() {
     const wb = XLSX.utils.book_new()
     XLSX.utils.book_append_sheet(wb, ws, 'Sheet1')
     XLSX.writeFile(wb, 'data.xlsx')
+    toast.success('XLSX exported')
   } catch (err) {
-    alert('Failed to export XLSX: ' + err)
+    toast.error('Failed to export XLSX: ' + err)
   }
 }
 
@@ -112,8 +116,9 @@ function handleXLSXImport(e) {
       const first = wb.Sheets[wb.SheetNames[0]]
       const json = XLSX.utils.sheet_to_json(first, { defval: null })
       items.value = json
+      toast.success('XLSX imported')
     } catch (err) {
-      alert('Failed to read XLSX file')
+      toast.error('Failed to read XLSX file')
     }
   }
   reader.readAsArrayBuffer(f)
@@ -124,8 +129,9 @@ function applyJson() {
   try {
     const parsed = JSON.parse(jsonText.value)
     items.value = parsed
+    toast.success('JSON applied')
   } catch (err) {
-    alert('Invalid JSON in editor')
+    toast.error('Invalid JSON in editor')
   }
 }
 

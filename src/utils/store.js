@@ -12,6 +12,7 @@ const defaultState = () => ({
   meta: { title: 'MarryMe Backup', createdAt: nowISO(), updatedAt: nowISO(), version: '1.0.0' },
   dashboard: { notes: '', lastViewed: null },
   tasks: [],
+  taskCategories: ['General', 'Venue', 'Dress', 'Food', 'Guest List'],
   notes: [],
   guests: [],
   contacts: [],

@@ -34,6 +34,7 @@
 
 <script setup>
 import { useRoute, useRouter } from 'vue-router'
+import { toast } from 'vue3-toastify'
 import store from '../utils/store'
 
 const route = useRoute()
@@ -56,7 +57,7 @@ function navigate(path) {
 function handleAction(action) {
   if (action === 'save') {
     store.saveState(store.getState())
-    alert('Data saved to LocalStorage')
+    toast.success('Data saved to LocalStorage')
   } else if (action === 'export') {
     const data = store.exportBackup()
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
@@ -77,9 +78,9 @@ function handleAction(action) {
         try {
           const json = JSON.parse(event.target.result)
           store.importBackup(json, { mode: 'replace' })
-          alert('Data imported successfully')
+          toast.success('Data imported successfully')
         } catch (err) {
-          alert('Invalid backup file')
+          toast.error('Invalid backup file')
         }
       }
       reader.readAsText(file)

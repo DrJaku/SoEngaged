@@ -93,7 +93,7 @@
                   <h6 class="section-header-floating text-truncate" style="max-width: 90%;">
                     {{ state?.settings?.venue || 'Venue Location' }}
                   </h6>
-                  <div class="venue-body flex-grow-1 w-100 h-100">
+                  <div class="venue-body flex-grow-1 w-100 h-100" style="z-index: 0;">
                     <div v-if="state?.settings?.venueCoords" id="venueMap" style="width: 100%; height: 100%; min-height: 200px;"></div>
                     <div v-else class="venue-placeholder d-flex align-items-center justify-content-center small text-muted text-center w-100 h-100 p-5">
                       <span class="mt-4">no venue location added yet • <a href="#" @click.prevent="goToPreferences">add venue location</a></span>
