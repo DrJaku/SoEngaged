@@ -1,0 +1,70 @@
+:root {
+  --app-bg: rgb(240, 204, 192);
+  --section-bg: rgb(250, 236, 231);
+  --section-text: rgb(23, 27, 38);
+  --secondary-blue: rgb(51, 59, 84);
+  --secondary-white: rgb(244, 243, 240);
+  --pink-beige: rgb(203, 155, 138);
+}
+
+body {
+  background-color: var(--app-bg) !important;
+  color: var(--section-text);
+}
+
+.card, .viz-card, .thin-card, .bg-white, .bg-light {
+  background-color: var(--section-bg) !important;
+  border: none !important;
+  color: var(--section-text) !important;
+}
+
+/* Sidebar overrides */
+aside.bg-light {
+  background-color: var(--app-bg) !important;
+  color: var(--section-text) !important;
+  box-shadow: 4px 0 10px rgba(23, 27, 38, 0.05);
+  z-index: 100;
+}
+
+aside .btn-light {
+  background-color: var(--section-bg) !important;
+  color: var(--section-text) !important;
+  border: none;
+}
+
+aside .btn-light:hover {
+  background-color: var(--pink-beige) !important;
+  color: var(--secondary-white) !important;
+}
+
+aside .btn-primary {
+  background-color: var(--secondary-blue) !important;
+  border-color: var(--secondary-blue) !important;
+  color: var(--secondary-white) !important;
+}
+
+/* Optional: Ensure focus/active states also match */
+aside .btn-primary:focus, aside .btn-primary:active {
+  background-color: var(--secondary-blue) !important;
+  box-shadow: 0 0 0 0.25rem rgba(51, 59, 84, 0.25) !important;
+}
+
+/* Ensure headings and common text follow the theme */
+h1, h2, h3, h4, h5, h6, p, span, div:not(.btn):not(.badge):not(.alert) {
+  color: inherit;
+}
+
+.section-header-floating {
+  background-color: var(--secondary-white) !important;
+  color: var(--section-text) !important;
+}
+
+.text-muted {
+  color: var(--secondary-blue) !important;
+  opacity: 0.8;
+}
+
+/* Preserve special elements as requested */
+.btn-primary, .btn-outline-primary, .btn-success, .btn-warning, .btn-danger, .btn-dark, .btn-info, .btn-outline-secondary, .btn-group .btn {
+  /* These remain unchanged as per instructions */
+}

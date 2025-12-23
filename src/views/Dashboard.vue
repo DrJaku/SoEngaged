@@ -21,7 +21,7 @@
 
           <div class="col-12 col-lg-6">
             <div class="card viz-card h-100 p-4 d-flex flex-column">
-              <h5 class="text-muted text-center w-100 mb-4">Your Special Moment Is Coming In:</h5>
+              <h3 class="text-muted text-center w-100 mb-4">Your Special Moment Is Coming In:</h3>
               <div class="d-flex align-items-center justify-content-center flex-grow-1">
                 <div class="text-center w-100">
                   <div v-if="hasWeddingDate">
@@ -313,7 +313,7 @@ const centerTextPlugin = {
     ctx.save()
     const fontSize = Math.round((chart.height || 220) / 8)
     ctx.font = `bold ${fontSize}px sans-serif`
-    ctx.fillStyle = '#495057'
+ctx.fillStyle = 'rgb(23, 27, 38)'
     ctx.textAlign = 'center'
     ctx.textBaseline = 'middle'
     const cx = (chart.chartArea.left + chart.chartArea.right) / 2
@@ -409,8 +409,8 @@ function initDashboardMap() {
   }
 
   dashboardMap = L.map('venueMap').setView([coords.lat, coords.lng], 15)
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; OpenStreetMap'
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+    attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EBP, and the GIS User Community'
   }).addTo(dashboardMap)
   
   L.marker([coords.lat, coords.lng]).addTo(dashboardMap)
@@ -442,7 +442,7 @@ function initDashboardMap() {
   font-size: 4.0rem;
   font-weight: 800;
   line-height: 1;
-  color: #2b2b2b;
+  color: var(--section-text);
   margin-top: 0;
   display: flex;
   align-items: center;
@@ -459,7 +459,7 @@ function initDashboardMap() {
   line-height: 1;
 }
 .countdown-item .label {
-  color: #6c757d;
+  color: var(--secondary-blue);
   font-size: 0.85rem;
   font-weight: 500;
   margin-top: 0.25rem;
@@ -480,9 +480,9 @@ function initDashboardMap() {
 
 .wedding-date-footer {
   font-size: 1.1rem;
-  color: #6c757d;
+  color: var(--secondary-blue);
   font-weight: 400;
-  border-top: 1px solid #eee;
+  border-top: 1px solid rgba(23, 27, 38, 0.1);
   padding-top: 1.5rem;
   width: 100%;
 }

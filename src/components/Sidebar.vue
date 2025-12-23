@@ -94,7 +94,4 @@ function handleAction(action) {
 .menu-flex {
   max-height: calc(100vh - 200px);
 }
-.btn-light:hover {
-  background-color: #e9ecef;
-}
 </style>

@@ -765,6 +765,10 @@ function formatDate(date) {
 </script>
 
 <style scoped>
+.list-group-item {
+  background-color: var(--secondary-white) !important;
+  color: var(--section-text) !important;
+}
 .cursor-move { cursor: move; }
 .shadow-xs { box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
 .small-check { transform: scale(0.85); }

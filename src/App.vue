@@ -22,7 +22,5 @@ const isLoginPage = computed(() => route.path === '/login' || route.path === '/'
 </script>
 
 <style>
-body {
-  background-color: #f8f9fa;
-}
+/* Global body background is handled in theme.css */
 </style>
