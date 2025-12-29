@@ -264,38 +264,63 @@
 
     <!-- Booking Confirmation Modal -->
     <div class="modal fade" id="bookingConfirmationModal" tabindex="-1" ref="bookingModalRef">
-      <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content border-0 shadow-lg">
-          <div class="modal-header bg-success text-white">
-            <h5 class="modal-title fw-bold">Confirm Booking</h5>
+          <div class="modal-header bg-success text-white py-3">
+            <h5 class="modal-title fw-bold">
+              <i class="fa-solid fa-calendar-check me-2"></i> Confirm Booking
+            </h5>
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
           </div>
-          <div class="modal-body py-4">
-            <div class="d-flex align-items-start gap-3">
-              <div class="text-success display-6">
-                <i class="fa-solid fa-calendar-check"></i>
+          <div class="modal-body p-5">
+            <div class="row align-items-center">
+              <div class="col-md-4 text-center d-none d-md-block border-end">
+                <div class="display-1 text-success opacity-75 mb-3">
+                  <i class="fa-solid fa-handshake"></i>
+                </div>
+                <h6 class="text-uppercase tracked-labels text-muted small">New Partnership</h6>
               </div>
-              <div>
-                <p class="mb-3">You are booking <strong>{{ pendingVendor?.firstName }} {{ pendingVendor?.lastName }}</strong> for the <strong>{{ pendingVendor?.category }}</strong> category.</p>
+              <div class="col-md-8 ps-md-5">
+                <div class="mb-4">
+                  <h3 class="fw-bold mb-1">Excellent Choice!</h3>
+                  <p class="text-muted lead mb-0">You're about to book a new professional for your wedding.</p>
+                </div>
                 
-                <div class="form-check p-3 bg-light rounded border">
-                  <input 
-                    class="form-check-input ms-0 me-2" 
-                    type="checkbox" 
-                    v-model="moveOthersToNotBooked" 
-                    id="moveOthersCheck"
-                  >
-                  <label class="form-check-label fw-medium" for="moveOthersCheck">
-                    Set all other vendors in this category to "Not booked"
-                  </label>
-                  <p class="small text-muted mb-0 mt-1">This will automatically decline other candidates in the <strong>{{ pendingVendor?.category }}</strong> category.</p>
+                <div class="p-3 bg-light rounded-3 mb-4 border-start border-4 border-success shadow-xs">
+                  <div class="small text-uppercase text-muted tracked-labels mb-1">Selected Vendor</div>
+                  <div class="h4 mb-0 fw-bold">{{ pendingVendor?.firstName }} {{ pendingVendor?.lastName }}</div>
+                  <div class="text-success fw-medium mt-1">
+                    <i class="fa-solid fa-tag small"></i> {{ pendingVendor?.category }}
+                  </div>
+                </div>
+
+                <div class="form-check p-3 border rounded-3 bg-white hover-light-border transition-all">
+                  <div class="d-flex align-items-start gap-2">
+                    <input 
+                      class="form-check-input mt-1 ms-1" 
+                      type="checkbox" 
+                      v-model="moveOthersToNotBooked" 
+                      id="moveOthersCheck"
+                    >
+                    <div>
+                      <label class="form-check-label fw-bold d-block" for="moveOthersCheck">
+                        Close Category Selection
+                      </label>
+                      <p class="small text-muted mb-0">
+                        Mark all other <strong>{{ pendingVendor?.category }}</strong> candidates as "Not booked".<br>
+                        This helps keep your list organized by focusing only on your booked selection.
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-          <div class="modal-footer border-0">
-            <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">Cancel</button>
-            <button type="button" class="btn btn-success px-4 fw-bold" @click="confirmBooking">Book Vendor</button>
+          <div class="modal-footer bg-light border-0 py-3 px-4">
+            <button type="button" class="btn btn-link text-muted text-decoration-none px-4" data-bs-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-success btn-lg px-5 fw-bold shadow-sm rounded-pill" @click="confirmBooking">
+              Finalize Booking
+            </button>
           </div>
         </div>
       </div>
@@ -678,6 +703,19 @@ function saveToStore() {
 
 .hover-light:hover {
   background-color: #f8f9fa;
+}
+
+.hover-light-border:hover {
+  border-color: var(--bs-success) !important;
+  background-color: rgba(25, 135, 84, 0.02) !important;
+}
+
+.transition-all {
+  transition: all 0.2s ease-in-out;
+}
+
+.shadow-xs {
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
 .form-check-input:disabled {
