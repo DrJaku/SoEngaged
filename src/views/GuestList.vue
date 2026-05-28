@@ -34,17 +34,27 @@
         </div>
       </div>
 
-      <div class="search-box">
-        <div class="input-group input-group-sm">
-          <span class="input-group-text bg-white border-end-0">
-            <i class="fa-solid fa-magnifying-glass text-muted"></i>
-          </span>
-          <input 
-            v-model="filters.search" 
-            type="text" 
-            class="form-control border-start-0 shadow-none" 
-            placeholder="Search by name..."
-          >
+      <div class="d-flex align-items-center gap-2">
+        <button 
+          class="btn btn-outline-success d-flex align-items-center justify-content-center shadow-none" 
+          style="width: 32px; height: 32px; padding: 0;"
+          @click="exportToExcel"
+          title="Export to Excel"
+        >
+          <i class="fa-solid fa-file-excel"></i>
+        </button>
+        <div class="search-box">
+          <div class="input-group input-group-sm">
+            <span class="input-group-text bg-white border-end-0">
+              <i class="fa-solid fa-magnifying-glass text-muted"></i>
+            </span>
+            <input 
+              v-model="filters.search" 
+              type="text" 
+              class="form-control border-start-0 shadow-none" 
+              placeholder="Search by name..."
+            >
+          </div>
         </div>
       </div>
     </div>
@@ -61,6 +71,12 @@
               <th @click="toggleSort('lastName')" class="cursor-pointer">
                 Last Name <i v-if="sortBy === 'lastName'" :class="sortIcon"></i>
               </th>
+              <th @click="toggleSort('email')" class="cursor-pointer">
+                Email <i v-if="sortBy === 'email'" :class="sortIcon"></i>
+              </th>
+              <th @click="toggleSort('phone')" class="cursor-pointer">
+                Phone <i v-if="sortBy === 'phone'" :class="sortIcon"></i>
+              </th>
               <th @click="toggleSort('category')" class="cursor-pointer">
                 Category <i v-if="sortBy === 'category'" :class="sortIcon"></i>
               </th>
@@ -71,7 +87,7 @@
                 RSVP Probability <i v-if="sortBy === 'rsvp'" :class="sortIcon"></i>
               </th>
               <th class="text-center">Extras</th>
-              <th style="min-width: 200px;">Notes</th>
+              <th class="text-center">Notes</th>
               <th class="text-end">Actions</th>
             </tr>
           </thead>
@@ -112,6 +128,44 @@
                 </div>
                 <div v-else @click="startEdit(guest, 'lastName')" class="editable-cell text-truncate" :class="{'placeholder-text': !guest.lastName}">
                   {{ guest.lastName || 'Enter last name...' }}
+                </div>
+              </td>
+
+              <!-- Email -->
+              <td>
+                <div v-if="editingCell === `${guest.id}-email`" class="input-group input-group-sm">
+                  <input 
+                    v-model="editValue" 
+                    @blur="saveEdit(guest, 'email')" 
+                    @keyup.enter="saveEdit(guest, 'email')"
+                    @keyup.esc="cancelEdit"
+                    type="email" 
+                    class="form-control"
+                    ref="editInput"
+                    placeholder="Enter email..."
+                  >
+                </div>
+                <div v-else @click="startEdit(guest, 'email')" class="editable-cell text-truncate" :class="{'placeholder-text': !guest.email}">
+                  {{ guest.email || 'Enter email...' }}
+                </div>
+              </td>
+
+              <!-- Phone -->
+              <td>
+                <div v-if="editingCell === `${guest.id}-phone`" class="input-group input-group-sm">
+                  <input 
+                    v-model="editValue" 
+                    @blur="saveEdit(guest, 'phone')" 
+                    @keyup.enter="saveEdit(guest, 'phone')"
+                    @keyup.esc="cancelEdit"
+                    type="text" 
+                    class="form-control"
+                    ref="editInput"
+                    placeholder="Enter phone..."
+                  >
+                </div>
+                <div v-else @click="startEdit(guest, 'phone')" class="editable-cell text-truncate" :class="{'placeholder-text': !guest.phone}">
+                  {{ guest.phone || 'Enter phone...' }}
                 </div>
               </td>
 
@@ -176,22 +230,15 @@
               </td>
 
               <!-- Notes -->
-              <td>
-                <div v-if="editingCell === `${guest.id}-notes`" class="input-group input-group-sm">
-                  <input 
-                    v-model="editValue" 
-                    @blur="saveEdit(guest, 'notes')" 
-                    @keyup.enter="saveEdit(guest, 'notes')"
-                    @keyup.esc="cancelEdit"
-                    type="text" 
-                    class="form-control"
-                    ref="editInput"
-                    placeholder="Write a note..."
-                  >
-                </div>
-                <div v-else @click="startEdit(guest, 'notes')" class="editable-cell text-muted small italic" :class="{'placeholder-text': !guest.notes}">
-                  {{ guest.notes || 'Write a note...' }}
-                </div>
+              <td class="text-center">
+                <button 
+                  class="btn btn-sm" 
+                  :class="guest.notes ? 'btn-info text-white' : 'btn-outline-secondary border-0'"
+                  @click="openNotesModal(guest)"
+                  title="View/Edit Notes"
+                >
+                  <i class="fa-solid fa-note-sticky"></i>
+                </button>
               </td>
 
               <!-- Actions -->
@@ -204,7 +251,7 @@
 
             <!-- Empty State -->
             <tr v-if="filteredGuests.length === 0">
-              <td colspan="8" class="text-center py-5">
+              <td colspan="10" class="text-center py-5">
                 <div class="text-muted opacity-25 display-1 mb-3">
                   <i class="fa-solid fa-users-slash"></i>
                 </div>
@@ -332,6 +379,30 @@
         </div>
       </div>
     </div>
+
+    <!-- Guest Notes Modal -->
+    <div class="modal fade" id="guestNotesModal" tabindex="-1">
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+          <div class="modal-header border-0 pb-0">
+            <h5 class="modal-title fw-bold">Guest Notes: {{ activeGuest?.firstName }} {{ activeGuest?.lastName }}</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body py-4">
+            <textarea 
+              v-model="tempNotes" 
+              class="form-control shadow-none" 
+              rows="10" 
+              placeholder="Write any special requests, food allergies, or other details here..."
+            ></textarea>
+          </div>
+          <div class="modal-footer border-0">
+            <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-primary px-4" @click="saveNotes">Save Notes</button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -341,9 +412,12 @@ import draggable from 'vuedraggable'
 import * as bootstrap from 'bootstrap'
 import { toast } from 'vue3-toastify'
 import store from '../utils/store'
+import ExcelJS from 'exceljs'
 
 const guests = ref([])
 const categories = ref([])
+const brideName = ref('')
+const groomName = ref('')
 const newCategoryName = ref('')
 const filters = ref({
   search: '',
@@ -362,12 +436,17 @@ const editingCategoryName = ref('')
 const sortBy = ref('firstName')
 const sortOrder = ref('asc')
 
+const activeGuest = ref(null)
+const tempNotes = ref('')
+
 const allCategories = computed(() => [...categories.value, 'Other'])
 
 onMounted(() => {
   const state = store.getState()
   guests.value = state.guests || []
   categories.value = state.guestCategories || ['Family', 'Friend', 'Work']
+  brideName.value = state.settings?.brideName || 'כלה'
+  groomName.value = state.settings?.groomName || 'חתן'
 })
 
 const filteredGuests = computed(() => {
@@ -439,11 +518,86 @@ function toggleSort(key) {
   }
 }
 
+const exportToExcel = async () => {
+  const workbook = new ExcelJS.Workbook()
+  const worksheet = workbook.addWorksheet('רשימת מוזמנים')
+
+  // Set right-to-left layout for Hebrew
+  worksheet.views = [{ rightToLeft: true }]
+
+  worksheet.columns = [
+    { header: 'שם', key: 'fullName', width: 45 },
+    { header: 'טלפון', key: 'phone', width: 20 },
+    { header: 'כמות', key: 'amount', width: 10 },
+    { header: 'צד', key: 'sideName', width: 20 },
+    { header: 'קטגוריה', key: 'category', width: 25 },
+    { header: 'סטטוס', key: 'status', width: 15 },
+  ]
+
+  // Header styling
+  const headerRow = worksheet.getRow(1)
+  headerRow.font = { bold: true, size: 12 }
+  headerRow.fill = {
+    type: 'pattern',
+    pattern: 'solid',
+    fgColor: { argb: 'FFE9ECEF' }
+  }
+  headerRow.alignment = { horizontal: 'center' }
+
+  // Prepare and sort guests alphabetically by full name
+  const exportData = sortedGuests.value.map(guest => {
+    const fullName = `${guest.firstName || ''} ${guest.lastName || ''}`.trim()
+    return {
+      ...guest,
+      fullName,
+      amount: 1 + (Number(guest.extras) || 0),
+      sideName: guest.side === 'bride' ? brideName.value : groomName.value
+    }
+  }).sort((a, b) => a.fullName.localeCompare(b.fullName, 'he'))
+
+  exportData.forEach(guest => {
+    worksheet.addRow({
+      fullName: guest.fullName,
+      phone: guest.phone,
+      amount: guest.amount,
+      sideName: guest.sideName,
+      category: guest.category
+    })
+  })
+
+  // Borders for all cells
+  worksheet.eachRow((row, rowNumber) => {
+    row.eachCell((cell) => {
+      cell.border = {
+        top: { style: 'thin' },
+        left: { style: 'thin' },
+        bottom: { style: 'thin' },
+        right: { style: 'thin' }
+      }
+      cell.alignment = { horizontal: 'center' }
+    })
+  })
+
+  // Write to buffer and download
+  const buffer = await workbook.xlsx.writeBuffer()
+  const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
+  const url = window.URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `רשימת_מוזמנים_${new Date().toLocaleDateString('he-IL').replace(/\//g, '-')}.xlsx`
+  a.click()
+  window.URL.revokeObjectURL(url)
+  
+  toast.success('הקובץ יוצא בהצלחה!')
+}
+
 function addNewGuest() {
   const newGuest = {
     id: 'guest_' + Date.now(),
     firstName: '',
     lastName: '',
+    email: '',
+    phone: '',
     category: 'Other',
     side: 'bride',
     rsvp: 'unlikely',
@@ -452,7 +606,7 @@ function addNewGuest() {
   }
   guests.value.push(newGuest)
   saveToStore()
-  
+
   // Auto edit the first name of the new row
   nextTick(() => {
     startEdit(newGuest, 'firstName')
@@ -462,6 +616,24 @@ function addNewGuest() {
 function deleteGuest(id) {
   guests.value = guests.value.filter(g => g.id !== id)
   saveToStore()
+}
+
+function openNotesModal(guest) {
+  activeGuest.value = guest
+  tempNotes.value = guest.notes || ''
+  const modal = new bootstrap.Modal(document.getElementById('guestNotesModal'))
+  modal.show()
+}
+
+function saveNotes() {
+  if (activeGuest.value) {
+    activeGuest.value.notes = tempNotes.value
+    saveToStore()
+    const modalElement = document.getElementById('guestNotesModal')
+    const modalInstance = bootstrap.Modal.getInstance(modalElement)
+    if (modalInstance) modalInstance.hide()
+    toast.success('Notes updated successfully')
+  }
 }
 
 function startEdit(guest, field) {

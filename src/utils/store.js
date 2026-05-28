@@ -31,6 +31,8 @@ const defaultState = () => ({
     currency: 'ILS', 
     locale: 'he-IL', 
     autosave: true,
+    brideName: '',
+    groomName: '',
     venueCoords: null, // { lat: number, lng: number }
     weddingBudget: 0
   },

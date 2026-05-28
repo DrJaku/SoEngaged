@@ -47,17 +47,27 @@
         </div>
       </div>
 
-      <div class="search-box">
-        <div class="input-group input-group-sm">
-          <span class="input-group-text bg-white border-end-0">
-            <i class="fa-solid fa-magnifying-glass text-muted"></i>
-          </span>
-          <input 
-            v-model="filters.search" 
-            type="text" 
-            class="form-control border-start-0 shadow-none" 
-            placeholder="Search expenses..."
-          >
+      <div class="d-flex align-items-center gap-2">
+        <button 
+          class="btn btn-outline-success d-flex align-items-center justify-content-center shadow-none" 
+          style="width: 32px; height: 32px; padding: 0;"
+          @click="exportToExcel"
+          title="Export to Excel"
+        >
+          <i class="fa-solid fa-file-excel"></i>
+        </button>
+        <div class="search-box">
+          <div class="input-group input-group-sm">
+            <span class="input-group-text bg-white border-end-0">
+              <i class="fa-solid fa-magnifying-glass text-muted"></i>
+            </span>
+            <input 
+              v-model="filters.search" 
+              type="text" 
+              class="form-control border-start-0 shadow-none" 
+              placeholder="Search expenses..."
+            >
+          </div>
         </div>
       </div>
     </div>
@@ -382,6 +392,7 @@ import draggable from 'vuedraggable'
 import * as bootstrap from 'bootstrap'
 import { toast } from 'vue3-toastify'
 import store from '../utils/store'
+import ExcelJS from 'exceljs'
 
 const expenses = ref([])
 const categories = ref([])
@@ -496,6 +507,152 @@ function toggleCategoryCollapse(name) {
   const idx = collapsedCategories.value.indexOf(name)
   if (idx === -1) collapsedCategories.value.push(name)
   else collapsedCategories.value.splice(idx, 1)
+}
+
+const exportToExcel = async () => {
+  const workbook = new ExcelJS.Workbook()
+  const worksheet = workbook.addWorksheet('Budget')
+
+  // Define columns
+  worksheet.columns = [
+    { header: 'Category / Description', key: 'name', width: 45 },
+    { header: 'Status', key: 'status', width: 18 },
+    { header: 'Estimation', key: 'estimation', width: 20 },
+    { header: 'Amount Due', key: 'due', width: 20 },
+    { header: 'Amount Paid', key: 'paid', width: 20 },
+    { header: 'Total', key: 'total', width: 20 },
+  ]
+
+  // Apply currency format to numeric columns
+  const currencyCols = ['C', 'D', 'E', 'F']
+  
+  // Style header
+  const headerRow = worksheet.getRow(1)
+  headerRow.font = { bold: true, size: 12 }
+  headerRow.alignment = { horizontal: 'center', vertical: 'middle' }
+  headerRow.height = 25
+
+  let currentRow = 2
+  const categoryTotalRows = []
+
+  groupedExpenses.value.forEach(group => {
+    // If we have filters, we might have groups with no expenses. 
+    // The requirement says "category names are emphasized".
+    
+    // Category Header Row
+    const categoryRow = worksheet.addRow({ name: group.name.toUpperCase() })
+    categoryRow.font = { bold: true, color: { argb: 'FFFFFFFF' } }
+    categoryRow.fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: 'FF444444' }
+    }
+    worksheet.mergeCells(`A${currentRow}:F${currentRow}`)
+    currentRow++
+
+    const startRow = currentRow
+    group.expenses.forEach(expense => {
+      const expenseRow = worksheet.addRow({
+        name: expense.name,
+        status: expense.paymentStatus.charAt(0).toUpperCase() + expense.paymentStatus.slice(1),
+        estimation: Number(expense.estimation) || 0,
+        due: Number(expense.due) || 0,
+        paid: Number(expense.paid) || 0,
+        total: { formula: `D${currentRow}+E${currentRow}` }
+      })
+      
+      // Align Description and Status to center
+      expenseRow.getCell('name').alignment = { horizontal: 'center' }
+      expenseRow.getCell('status').alignment = { horizontal: 'center' }
+      
+      // Apply number format to numeric cells in this row
+      currencyCols.forEach(col => {
+        expenseRow.getCell(col).numFmt = '₪#,##0.00'
+      })
+      
+      currentRow++
+    })
+    const endRow = currentRow - 1
+
+    // Category Sum Row (Subtotal)
+    if (group.expenses.length > 0) {
+      const subtotalRow = worksheet.addRow({
+        name: `SUBTOTAL: ${group.name}`,
+        estimation: { formula: `SUM(C${startRow}:C${endRow})` },
+        due: { formula: `SUM(D${startRow}:D${endRow})` },
+        paid: { formula: `SUM(E${startRow}:E${endRow})` },
+        total: { formula: `SUM(F${startRow}:F${endRow})` }
+      })
+      
+      subtotalRow.font = { bold: true }
+      subtotalRow.fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: 'FFF5F5F5' }
+      }
+      
+      currencyCols.forEach(col => {
+        subtotalRow.getCell(col).numFmt = '₪#,##0.00'
+      })
+      
+      categoryTotalRows.push(currentRow)
+      currentRow++
+    }
+    
+    // Add empty row for spacing
+    worksheet.addRow({})
+    currentRow++
+  })
+
+  // Overall Totals Row
+  const totalsLabelRow = worksheet.addRow({ name: 'OVERALL TOTALS' })
+  totalsLabelRow.font = { bold: true, size: 14 }
+  totalsLabelRow.fill = {
+    type: 'pattern',
+    pattern: 'solid',
+    fgColor: { argb: 'FFD9EAD3' } // Light green
+  }
+  
+  if (categoryTotalRows.length > 0) {
+    const estFormula = `SUM(${categoryTotalRows.map(r => `C${r}`).join(',')})`
+    const dueFormula = `SUM(${categoryTotalRows.map(r => `D${r}`).join(',')})`
+    const paidFormula = `SUM(${categoryTotalRows.map(r => `E${r}`).join(',')})`
+    const totFormula = `SUM(${categoryTotalRows.map(r => `F${r}`).join(',')})`
+    
+    totalsLabelRow.getCell('estimation').value = { formula: estFormula }
+    totalsLabelRow.getCell('due').value = { formula: dueFormula }
+    totalsLabelRow.getCell('paid').value = { formula: paidFormula }
+    totalsLabelRow.getCell('total').value = { formula: totFormula }
+  }
+
+  currencyCols.forEach(col => {
+    totalsLabelRow.getCell(col).numFmt = '₪#,##0.00'
+    totalsLabelRow.getCell(col).font = { bold: true, size: 14 }
+  })
+
+  // Set borders for all used cells
+  worksheet.eachRow((row, rowNumber) => {
+    row.eachCell((cell) => {
+      cell.border = {
+        top: { style: 'thin' },
+        left: { style: 'thin' },
+        bottom: { style: 'thin' },
+        right: { style: 'thin' }
+      }
+    })
+  })
+
+  // Write to buffer and download
+  const buffer = await workbook.xlsx.writeBuffer()
+  const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
+  const url = window.URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `Wedding_Budget_${new Date().toLocaleDateString('he-IL').replace(/\//g, '-')}.xlsx`
+  a.click()
+  window.URL.revokeObjectURL(url)
+  
+  toast.success('Budget exported successfully!')
 }
 
 function expandAll() {

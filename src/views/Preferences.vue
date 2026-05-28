@@ -8,6 +8,28 @@
           </div>
           <div class="card-body p-4">
             <form @submit.prevent="saveSettings">
+              <!-- Names Row -->
+              <div class="row mb-4">
+                <div class="col-md-6 mb-3 mb-md-0">
+                  <label class="form-label fw-bold">Bride's First Name</label>
+                  <input 
+                    type="text" 
+                    class="form-control" 
+                    v-model="settings.brideName"
+                    placeholder="Enter bride's name"
+                  >
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label fw-bold">Groom's First Name</label>
+                  <input 
+                    type="text" 
+                    class="form-control" 
+                    v-model="settings.groomName"
+                    placeholder="Enter groom's name"
+                  >
+                </div>
+              </div>
+
               <!-- Wedding Date -->
               <div class="mb-4">
                 <label class="form-label fw-bold">Wedding Date</label>
@@ -159,6 +181,8 @@ const router = useRouter()
 const isSaving = ref(false)
 const initialSettings = ref({})
 const settings = ref({
+  brideName: '',
+  groomName: '',
   weddingDate: '',
   invitationImage: '',
   venue: '',
@@ -251,6 +275,8 @@ onMounted(() => {
   const state = store.getState()
   if (state.settings) {
     const saved = {
+      brideName: state.settings.brideName || '',
+      groomName: state.settings.groomName || '',
       weddingDate: state.settings.weddingDate || '',
       invitationImage: state.settings.invitationImage || '',
       venue: state.settings.venue || '',
